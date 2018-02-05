@@ -30,7 +30,8 @@ def prepare_roidb(imdb):
       roidb[i]['width'] = sizes[i][0]
       roidb[i]['height'] = sizes[i][1]
     # need gt_overlaps as a dense array for argmax
-    gt_overlaps = roidb[i]['gt_overlaps'].toarray()
+
+    gt_overlaps = np.array(roidb[i]['gt_overlaps'])
     # max overlap with gt over classes (columns)
     max_overlaps = gt_overlaps.max(axis=1)
     # gt class that had the max overlap
