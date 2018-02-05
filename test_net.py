@@ -30,6 +30,7 @@ from model.rpn.bbox_transform import bbox_transform_inv
 from model.utils.net_utils import save_net, load_net, vis_detections
 from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
+from model.faster_rcnn.light_head import LightHead
 
 import pdb
 
@@ -127,6 +128,10 @@ if __name__ == '__main__':
       args.imdb_name = "vg_150-50-50_minitrain"
       args.imdbval_name = "vg_150-50-50_minival"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]']
+  elif args.dataset == 'dit':
+      args.imdb_name = 'dit_train'
+      args.imdbval_name = 'dit_test'
+      args.set_cfgs = ['ANCHOR_SCALES', '[2, 4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '100']
 
   args.cfg_file = "cfgs/{}_ls.yml".format(args.net) if args.large_scale else "cfgs/{}.yml".format(args.net)
 
@@ -159,6 +164,8 @@ if __name__ == '__main__':
     fasterRCNN = resnet(imdb.classes, 50, pretrained=False, class_agnostic=args.class_agnostic)
   elif args.net == 'res152':
     fasterRCNN = resnet(imdb.classes, 152, pretrained=False, class_agnostic=args.class_agnostic)
+  elif args.net == 'light':
+    fasterRCNN = LightHead(imdb.classes, class_agnostic=args.class_agnostic)
   else:
     print("network is not defined")
     pdb.set_trace()
@@ -280,11 +287,11 @@ if __name__ == '__main__':
           if inds.numel() > 0:
             cls_scores = scores[:,j][inds]
             _, order = torch.sort(cls_scores, 0, True)
+
             if args.class_agnostic:
               cls_boxes = pred_boxes[inds, :]
             else:
               cls_boxes = pred_boxes[inds][:, j * 4:(j + 1) * 4]
-
             cls_dets = torch.cat((cls_boxes, cls_scores), 1)
             cls_dets = cls_dets[order]
             keep = nms(cls_dets, cfg.TEST.NMS)

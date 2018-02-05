@@ -34,6 +34,9 @@ from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
 import pdb
 
+from lib.model.faster_rcnn.light_head import LightHead
+
+
 def parse_args():
   """
   Parse input arguments
@@ -180,6 +183,10 @@ if __name__ == '__main__':
       args.imdb_name = "vg_150-50-50_minitrain"
       args.imdbval_name = "vg_150-50-50_minival"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '50']
+  elif args.dataset == 'dit':
+      args.imdb_name = 'dit_festival'
+      args.imdbval_name = 'dit_test'
+      args.set_cfgs = ['ANCHOR_SCALES', '[2, 4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '100']
 
   args.cfg_file = "cfgs/{}_ls.yml".format(args.net) if args.large_scale else "cfgs/{}.yml".format(args.net)
 
@@ -211,7 +218,7 @@ if __name__ == '__main__':
 
   sampler_batch = sampler(train_size, args.batch_size)
 
-  dataset = roibatchLoader(roidb, ratio_list, ratio_index, args.batch_size, \
+  dataset = roibatchLoader(roidb, ratio_list, ratio_index, args.batch_size,
                            imdb.num_classes, training=True)
 
   dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size,
@@ -249,6 +256,8 @@ if __name__ == '__main__':
     fasterRCNN = resnet(imdb.classes, 50, pretrained=True, class_agnostic=args.class_agnostic)
   elif args.net == 'res152':
     fasterRCNN = resnet(imdb.classes, 152, pretrained=True, class_agnostic=args.class_agnostic)
+  elif args.net == 'light':
+    fasterRCNN = LightHead(imdb.classes, class_agnostic=args.class_agnostic)
   else:
     print("network is not defined")
     pdb.set_trace()
@@ -264,7 +273,7 @@ if __name__ == '__main__':
   for key, value in dict(fasterRCNN.named_parameters()).items():
     if value.requires_grad:
       if 'bias' in key:
-        params += [{'params':[value],'lr':lr*(cfg.TRAIN.DOUBLE_BIAS + 1), \
+        params += [{'params':[value],'lr':lr*(cfg.TRAIN.DOUBLE_BIAS + 1),
                 'weight_decay': cfg.TRAIN.BIAS_DECAY and cfg.TRAIN.WEIGHT_DECAY or 0}]
       else:
         params += [{'params':[value],'lr':lr, 'weight_decay': cfg.TRAIN.WEIGHT_DECAY}]
