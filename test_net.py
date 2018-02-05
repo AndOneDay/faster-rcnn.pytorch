@@ -320,10 +320,10 @@ if __name__ == '__main__':
       sys.stdout.flush()
 
       if vis:
-          cv2.imwrite('result.png', im2show)
-          pdb.set_trace()
-          #cv2.imshow('test', im2show)
-          #cv2.waitKey(0)
+          # cv2.imwrite('result.png', im2show)
+          # pdb.set_trace()
+          cv2.imshow('test', im2show)
+          cv2.waitKey(0)
 
   with open(det_file, 'wb') as f:
       pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
