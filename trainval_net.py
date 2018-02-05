@@ -183,7 +183,7 @@ if __name__ == '__main__':
       args.imdbval_name = "vg_150-50-50_minival"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '50']
   elif args.dataset == 'dit':
-      args.imdb_name = 'dit_festival'
+      args.imdb_name = 'dit_train'
       args.imdbval_name = 'dit_test'
       args.set_cfgs = ['ANCHOR_SCALES', '[2, 4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '100']
 

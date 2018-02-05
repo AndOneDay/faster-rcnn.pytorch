@@ -59,12 +59,12 @@ class _fasterRCNN(nn.Module):
             rois_inside_ws = Variable(rois_inside_ws.view(-1, rois_inside_ws.size(2)))
             rois_outside_ws = Variable(rois_outside_ws.view(-1, rois_outside_ws.size(2)))
         else:
-            rois_label = None
-            rois_target = None
-            rois_inside_ws = None
-            rois_outside_ws = None
-            rpn_loss_cls = 0
-            rpn_loss_bbox = 0
+            rois_label = Variable(torch.zeros(1).cuda())
+            rois_target = Variable(torch.zeros(1).cuda())
+            rois_inside_ws = Variable(torch.zeros(1).cuda())
+            rois_outside_ws = Variable(torch.zeros(1).cuda())
+            rpn_loss_cls = Variable(torch.zeros(1).cuda())
+            rpn_loss_bbox = Variable(torch.zeros(1).cuda())
 
         rois = Variable(rois)
         # do roi pooling based on predicted rois
@@ -97,8 +97,8 @@ class _fasterRCNN(nn.Module):
         cls_score = self.RCNN_cls_score(pooled_feat)
         cls_prob = F.softmax(cls_score)
 
-        RCNN_loss_cls = 0
-        RCNN_loss_bbox = 0
+        RCNN_loss_cls = Variable(torch.zeros(1).cuda())
+        RCNN_loss_bbox = Variable(torch.zeros(1).cuda())
 
         if self.training:
             # classification loss
@@ -110,7 +110,8 @@ class _fasterRCNN(nn.Module):
 
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
-
+        # print('out', rpn_loss_cls)
+        # print(rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label)
         return rois, cls_prob, bbox_pred, rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label
 
     def _init_weights(self):
