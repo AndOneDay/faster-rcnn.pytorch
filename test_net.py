@@ -17,6 +17,7 @@ import pdb
 import time
 import cv2
 import torch
+import matplotlib.pyplot as plt
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
@@ -290,7 +291,7 @@ if __name__ == '__main__':
             keep = nms(cls_dets, cfg.TEST.NMS)
             cls_dets = cls_dets[keep.view(-1).long()]
             if vis:
-              im2show = vis_detections(im2show, imdb.classes[j], cls_dets.cpu().numpy(), 0.3)
+              im2show = vis_detections(im2show, imdb.classes[j], cls_dets.cpu().numpy(), 0.7)
             all_boxes[j][i] = cls_dets.cpu().numpy()
           else:
             all_boxes[j][i] = empty_array
@@ -312,11 +313,9 @@ if __name__ == '__main__':
           .format(i + 1, num_images, detect_time, nms_time))
       sys.stdout.flush()
 
-      if vis:
-          cv2.imwrite('result.png', im2show)
-          pdb.set_trace()
-          #cv2.imshow('test', im2show)
-          #cv2.waitKey(0)
+      if vis and i % 30 == 0:
+          plt.imshow(im2show)
+          plt.show()
 
   with open(det_file, 'wb') as f:
       pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
